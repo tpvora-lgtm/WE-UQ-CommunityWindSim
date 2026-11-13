@@ -1,2 +1,0 @@
-summary: "This example demonstrates a feature that uses Computational Fluid Dynamics (CFD) to simulate transient wind load on a building with idealized surroundings. The workflow uses a transient CFD-solver for simulation wind loads and evaluates the response the building with uncertainty in structural damping"
-difficulty: 1
