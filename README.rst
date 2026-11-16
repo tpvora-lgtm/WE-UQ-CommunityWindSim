@@ -21,7 +21,7 @@ CommunityWindSim provides a workflow for simulating wind flow within a community
 
 Running with WE-UQ
 ^^^^^^^^^^^^^^^^^^
-The desktop application of WE-UQ is available `here <https://www.designsafe-ci.org/data/browser/tapis/designsafe.storage.community/SimCenter%2FSoftware%2FWE_UQ>`_. Documentation and installation instructions are provided `here <https://nheri-simcenter.github.io/WE-UQ-Documentation/>`_. The inputs to GUI of WE-UQ consists of three parts:
+The desktop application of WE-UQ is available `here <https://www.designsafe-ci.org/data/browser/tapis/designsafe.storage.community/SimCenter%2FSoftware%2FWE_UQ>`_. Documentation and installation instructions are provided `here <https://nheri-simcenter.github.io/WE-UQ-Documentation/>`_. Case folder entry will the name of the OpenFOAM case folder. Wind direction is the angle (in degrees) measured from the West-to-East direction, and the number of processors are required to run the simulation in parallel. The inputs to GUI of WE-UQ consists of three parts:
 
 1. Geographic Extent - Total region is defined by center point and bounding radius. Region of interest (ROI) is defined by a bounding box with minimum and maximum latitudes and longitudes.
 
@@ -39,7 +39,9 @@ The desktop application of WE-UQ is available `here <https://www.designsafe-ci.o
    :align: center
    :width: 75%
 
-3. CFD Parameters - CFD parameters are further divided into 
+3. CFD Parameters - The Boundary Mesh Cell Size represents the size of the cells in the background (blockMesh). Refinement levels are relative to this cell size, and the number of cells between layers define the minimum number of cells between two levels. CFD parameters are further divided into four sub parts:
+
+a. Domain Extents - These represent the distance of the boundaries from the nearest building in terms of the maximum height of the buildings (Hmax).  
 
 .. _fig-f4:
 
@@ -47,11 +49,15 @@ The desktop application of WE-UQ is available `here <https://www.designsafe-ci.o
    :align: center
    :width: 75%
 
+b. Regional Refinement - This widget allows the users to define refinement levels inside the domain to resolve the flow field with more accuracy near the buildings. Each region is defined as a box and each level leads to a twofold decrease in the cell size from the previous level (for example level 1 cell size will be background cell/2 and level 2 cell size will be level 1 cell/2 and so forth).
+
 .. _fig-f5:
 
 .. figure:: figures/CD2.png
    :align: center
    :width: 75%
+
+c. Boundary Conditions - The boundary condition for each boundary patch must be defined along with the turbulence framework and its corresponding submodel. To use a turbulent inflow at the inlet, a CSV file must be provided as shown below. 
 
 .. _fig-f6:
 
