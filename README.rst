@@ -28,7 +28,7 @@ The desktop application of WE-UQ is available `here <https://www.designsafe-ci.o
 
 .. _fig-f2:
 
-.. figure:: figures/GeogExtent
+.. figure:: figures/GeogExtent.png
    :align: center
    :width: 75%
 
