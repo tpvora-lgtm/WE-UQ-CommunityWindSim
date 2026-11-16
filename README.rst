@@ -130,25 +130,15 @@ Depending the solver chosen!
 2. In Parallel:
 
 ``blockMesh``
-
 ``surfaceFeatures``
-
 ``decomposePar``
-
 ``mpirun -np {number of processors chosen} snappyHexMesh -overwrite -parallel > log.snappy``
-
 ``reconstructParMesh -constant``
-
 ``decomposePar -force``
-
 ``mpirun -np {number of processors chosen} simpleFoam -parallel > log &``
-
 or 
-
 ``mpirun -np {number of processors chosen} pimpleFoam -parallel > log &``
-
 or
-
 ``mpirun -np {number of processors chosen} pisoFoam -parallel > log &``
 
 Depending the solver chosen!
