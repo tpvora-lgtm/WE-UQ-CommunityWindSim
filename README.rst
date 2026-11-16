@@ -57,7 +57,7 @@ b. Regional Refinement - This widget allows the users to define refinement level
    :align: center
    :width: 75%
 
-c. Boundary Conditions - The boundary condition for each boundary patch must be defined along with the turbulence framework and its corresponding submodel. To use a turbulent inflow at the inlet, a CSV file must be provided (example of a CSV file can be found `here <https://github.com/tpvora-lgtm/WE-UQ-CommunityWindSim/blob/main/src/CommunityWindSim/wind_profile.csv>_`). The parameters Uref, Href, and z0 are used to calibrate the mean logarithmic inlet velocity.
+c. Boundary Conditions - The boundary condition for each boundary patch must be defined along with the turbulence framework and its corresponding submodel. To use a turbulent inflow at the inlet, a CSV file must be provided (example of a CSV file can be found `here <https://github.com/tpvora-lgtm/WE-UQ-CommunityWindSim/blob/main/src/CommunityWindSim/wind_profile.csv>`_). The parameters Uref, Href, and z0 are used to calibrate the mean logarithmic inlet velocity.
 
 .. _fig-f6:
 
