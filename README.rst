@@ -153,28 +153,19 @@ or
 
 Depending the solver chosen!
 
-
 Example
 ^^^^^^^^
-This example provides a step-by-step guide for performing a community-level wind simulation using the CommunityWindSim framework.
+This example provides a step-by-step guide for performing a community-level wind simulation using the CommunityWindSim framework. The input.json file for this example is shown here.
+
+.. _fig-ex1:
+
+.. figure:: figures/inputEx.png
+   :align: center
+   :width: 75%
 
 Target region for the simulation
 """""""""""""""""""""""""""""""""
 In this example, the coordinate information for both the target region and the ROI is provided in Table 1 below using longitude and latitude. The target region is defined as a circular area centered on the given coordinate with a radius of 100 meters, while the ROI is specified by its bounding coordinates.
-
-.. _tbl-advanced-cfd-1:
-.. table:: Input coordinates for the Target region 
-   :align: center
-    
-   +---------------------+----------------------------------------------+---------------------
-   |Region               |Longitude                                     |Latitude            | 
-   +=====================+==============================================+====================+
-   |Total region(center) |-118.1366968745362                            | 34.19605960623262  |
-   +---------------------+----------------------------------------------+--------------------+
-   |ROI-min extent       |-118.13720649423749                           | 34.196219338557086 | 
-   +---------------------+----------------------------------------------+--------------------+
-   |ROI-max extent       |-118.13619261925281                           | 34.19641900353716  |
-   +---------------------+----------------------------------------------+--------------------+
 
 
 The user interface for inputting the given data is shown in :numref:`fig-advanced-cfd-8` and the output creating the geojson files is provided in :numref:`fig-advanced-cfd-9`.
