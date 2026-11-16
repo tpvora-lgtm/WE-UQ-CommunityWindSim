@@ -23,17 +23,23 @@ Running with WE-UQ
 ^^^^^^^^^^^^^^^^^^
 The desktop application of WE-UQ is available `here <https://www.designsafe-ci.org/data/browser/tapis/designsafe.storage.community/SimCenter%2FSoftware%2FWE_UQ>`_. Documentation and installation instructions are provided `here <https://nheri-simcenter.github.io/WE-UQ-Documentation/>`_. The inputs to GUI of WE-UQ consists of three parts:
 
-1. Geographic Extent
-
-2. Footprint Scraper
-
-3. CFD Parameters
+1. Geographic Extent - Total region is defined by center point and bounding radius. Region of interest (ROI) is defined by a bounding box with minimum and maximum latitudes and longitudes.
 
 .. _fig-f2:
 
 .. figure:: figures/GeogExtent.png
    :align: center
    :width: 75%
+
+2. Footprint Scraper - Three footprint scrapers are available, namely, USA, MS, and OSM. Default height represents the height of a building whose information is missing.
+
+.. _fig-f3:
+
+.. figure:: figures/BRAILS++.png
+   :align: center
+   :width: 75%
+
+3. CFD Parameters
 
    The `Python script to run is available on-line <https://github.com/tpvora-lgtm/WE-UQ-CommunityWindSim/tree/main/src/CommunityWindSim>`_ . To run it you need to ensure that the following python modules have been installed: brails, geopandas shapely pyproj trimesh rtree mapbox-earcut. These are installed by issuing the following terminal command:
 
