@@ -4,12 +4,12 @@
 Community level wind simulation: WE-UQ coupled with BRAILS++
 ------------------------------------------------------------
 
-**Tanmay Vora, Jieling Jiang, Abiy F. Melaku, Seymour Spence**
+**Tanmay Vora, Jieling Jiang, Abiy F. Melaku, Seymour Spence, Ann Jeffers, Frank McKenna**
 
 Introduction
 ^^^^^^^^^^^^
 
-This example provides a workflow for simulating wind flow within a community of buildings, defined by those buildings within the region of interest. The example does not (presently) run from WE-UQ. Instead the workflow is run by the user executing a `Python script <https://github.com/NHERI-SimCenter/WE-UQ/tree/master/Examples//advancedCFD/src/community_wind_simulation.py//>`_ that orchestrates the full pre-processing chain required for a computational fluid dynamics (CFD) simulation of urban wind flow. Specifically, the script performs the following **two** steps: **1**) Building footprints for the community of interest and its surrounding region are first generated using BRAILS++ **2**) Using user-provided inputs defining the parameters of the computational simulation, specifically the computational domain, boundary conditions, turbulence modeling, the script finishes by generating all the input files required for an OpenFOAM CFD simulation.  Once the input files have been generated, the user can run the wind simulation in OpenFOAM, and finally view the results in Paraview.
+This example provides a workflow for simulating wind flow within a community of buildings, defined by those buildings within the region of interest. The example does not (presently) run from WE-UQ. Instead the workflow is run by the user executing a `Python script <https://github.com/tpvora-lgtm/WE-UQ-CommunityWindSim/tree/main/src/CommunityWindSim>`_ that orchestrates the full pre-processing chain required for a computational fluid dynamics (CFD) simulation of urban wind flow. Specifically, the script performs the following **two** steps: **1**) Building footprints for the community of interest and its surrounding region are first generated using BRAILS++ **2**) Using user-provided inputs defining the parameters of the computational simulation, specifically the computational domain, boundary conditions, turbulence modeling, the script finishes by generating all the input files required for an OpenFOAM CFD simulation.  Once the input files have been generated, the user can run the wind simulation in OpenFOAM, and finally view the results in Paraview.
 
 .. _fig-advanced-cfd-1:
 
