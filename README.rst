@@ -165,7 +165,11 @@ This example provides a step-by-step guide for performing a community-level wind
 
 Target region for the simulation
 """""""""""""""""""""""""""""""""
+<<<<<<< HEAD
 The total region is selected as the circle of radius 200 m with the center coordinate (34.187958, -118.141656) which represents an area in Altadena. The region of interest is the bounding box represented by the (`min_lat`, `min_lon`) and (`max_lat`, `max_lon`) coordinates. The wind direction is chosen to be South-West (225°).
+=======
+The total region is selected as the circle of radius 200 m with the center coordinate (34.187958, -118.141656) which represents an area in Altadena. The region of interest is the bounding box represented by the (`min_lat`, `min_lon`) and (`max_lat`, `max_lon`) coordinates. The wind direction is chosen to be South-West 225°.
+>>>>>>> 19dfb0aa73d9d01801ddcf632fb2ce41019e98ec
 
 Visualization of the CFD output
 """""""""""""""""""""""""""""""
