@@ -23,7 +23,9 @@ Running with WE-UQ
 ^^^^^^^^^^^^^^^^^^
 The desktop application of WE-UQ is available `here <https://www.designsafe-ci.org/data/browser/tapis/designsafe.storage.community/SimCenter%2FSoftware%2FWE_UQ>`_. Documentation and installation instructions are provided `here <https://nheri-simcenter.github.io/WE-UQ-Documentation/>`_. The inputs to GUI of WE-UQ consists of three parts:
 1. Geographic Extent
+
 2. Footprint Scraper
+
 3. CFD Parameters
 
 .. _fig-f2:
