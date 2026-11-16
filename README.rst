@@ -65,6 +65,12 @@ c. Boundary Conditions - The boundary condition for each boundary patch must be 
    :align: center
    :width: 75%
 
+.. _fig-f8
+
+.. figure:: figures/TINF.png
+   :align: center
+   :width: 75%
+
 .. _fig-f7:
 
 .. figure:: figures/CD4.png
