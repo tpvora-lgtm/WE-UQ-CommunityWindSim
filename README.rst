@@ -97,11 +97,66 @@ The script can then run using the following command:
 
 ``python community_wind_simulation.py input.json``
 
+OpenFOAM Simulation
+^^^^^^^^^^^^^^^^^^^
+Both the above methods produce two GeoJSON files and an OpenFOAM case folder as shown below. The simulation can be run using the following commands:
+
+.. _fig-f8:
+
+.. figure:: figures/POut.png
+   :align: center
+   :width: 75%
+
+1. In Serial:
+
+``blockMesh``
+
+``surfaceFeatures``
+
+``snappyHexMesh -overwrite``
+
+``simpleFoam``
+
+or 
+
+``pimpleFoam``
+
+or
+
+``pisoFoam``
+
+Depending the solver chosen!
+
+2. In Parallel:
+
+``blockMesh``
+
+``surfaceFeatures``
+
+``decomposePar``
+
+``mpirun -np {number of processors chosen} snappyHexMesh -overwrite -parallel > log.snappy``
+
+``reconstructParMesh -constant``
+
+``decomposePar -force``
+
+``mpirun -np {number of processors chosen} simpleFoam -parallel > log &``
+
+or 
+
+``mpirun -np {number of processors chosen} pimpleFoam -parallel > log &``
+
+or
+
+``mpirun -np {number of processors chosen} pisoFoam -parallel > log &``
+
+Depending the solver chosen!
+
 
 Example
 ^^^^^^^^
-This example provides a step-by-step guide for performing a community-level wind simulation using the RANS approach, following the workflow outlined above.
-
+This example provides a step-by-step guide for performing a community-level wind simulation using the CommunityWindSim framework.
 
 Target region for the simulation
 """""""""""""""""""""""""""""""""
