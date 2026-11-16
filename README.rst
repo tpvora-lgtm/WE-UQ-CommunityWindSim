@@ -85,429 +85,13 @@ d. Control Dictionary - In this widget, solver and time parameters are required.
    :align: center
    :width: 75%
 
-   The `Python script to run is available on-line <https://github.com/tpvora-lgtm/WE-UQ-CommunityWindSim/tree/main/src/CommunityWindSim>`_ . To run it you need to ensure that the following python modules have been installed: brails, geopandas shapely pyproj trimesh rtree mapbox-earcut. These are installed by issuing the following terminal command:
+Running the Python Script on its own
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The Python script in the src/CommunityWindSim can alternatively run without the WE-UQ GUI. An example JSON file and TINF CSV file are provided in the directory to illustrate the inputs to the script. Before running the script, some dictionaries must be installed using the following commands:
 
-   .. code:: 
+``pip install git+https://github.com/NHERI-SimCenter/BrailsPlusPlus``
 
-        pip install brails argparse trimesh rtree mapbox-earcut
-
-   Once the script has been downloaded and the requirements installed, it is then run using the following terminal command:
-
-   .. code::
-      
-        python community_wind_simulation.py input.json
-
-Script Inputfile (input.json) to Create OpenFOAM case files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The input file, input.json, defines all user-specified parameters required by the application, **community_wind_simulation.py**. `An example input file is available on-line <https://github.com/NHERI-SimCenter/WE-UQ/tree/master/Examples//advancedCFD/src/input.json//>`_ . This file, parts of which are shown below, contains several key inputs, including: 1) **case_folder** which specifies the output folder that OpenFOAM input files will be written, 2) **wind_direction** which defines in degrees the wind direction (counter-clockwise from E), 3) **number_of_processors** which defines the number of processors that will be used when OpenFOAM runs (specify 1 for a sequential run), and 4) items for **geographic_extent**, **brails_options**, and **computational_domain** whose inputs will be discussed in sections below.
-
-   .. code-block:: json
-		   
-       { 
-          "case_folder":"LESCase_meanABL",
-          "wind_direction":225.0,
-          "number_of_processors":10,
-          "number_of_processors":10,			  
-          "geographic_extent":{ ... },
-          "brails_options":{ ...},
-          "computational_domain":{ ...}
-       }
-
-Geographic Extent
-"""""""""""""""""
-
-BRAILS++ is used in the workflow to generate a building inventory, which includes laitudes and longitudes of building footprints, and associated heights for all buildings within the study area. To define the computational domain for the CFD simulation the user specifies two regions n the **geometric_extent**: 1) An outer circular region of buildings, the **larger_region**, is specified with the user providing the longitude and latitude of the center point and the bounding radius, and 2) The **region_of_interest (ROI)**, i.e. the region containing the buildings of primary interest, is defined by a rectangular box spcified by minimum and maximum latitudes and longitudes, as shown in :numref:`fig-geo-cfd-2`.
-
-.. _fig-geo-cfd-2:
-
-.. figure:: figures/GeographicExtents.png
-   :align: center
-   :width: 35%
-
-    Geographic Extents - Larger Circular Region, ROI Bounding Box
-
-In the JSON input file, the **geographic_extent**, **larger_region**, and the **region_of_interest** are input as shown in code below:
-    
-.. code-block:: json
-
-	"geographic_extent":{
-	    "larger_region": {
-		"lat": 34.19707659182189,
-		"lon": -118.14252114105332,
-		"radius": 500.0
-	    },
-	    "region_of_interest": {
-		"min_lon": -118.14636206427565,
-		"min_lat": 34.196367,
-		"max_lon": -118.138466,
-		"max_lat": 34.197378
-	    }
-	}	      
-
-.. note::
-
-   1. The outer circular region is necessary to ensure that realistic turbulance is develops upstream for all buildings in the ROI. Consequently, the ROI bounding box specified by the user must be fully contained within the larger circular region.
-
-   2. The latitude and longitude of a specific point in the world can be obtained by clicking on a point in **Google Maps**, which display coresponding coordinates.
-
-   3. The radius defining the outer circular region is specified in meters.
-
-   4. The script when it runs,  generates two intermediate output files, inventoryTotal.geojson and inventoryROI.geojson. These files are provided in GeoJSON format and can be viewed using standard Geographic Information System (GIS) software, such as ArcGIS or QGIS.
-
-
-BRAILS Specific
-"""""""""""""""
-
-As building footprints can be obtained using multiple methods in BRAILS++, and because the resulting building data may not always include height information, the user must specify both the footprint scraper to be used and a **default_building_height** (in meters). Options for **footprint_scraper** include USA_Structure (**USA**), Open Street Maps (**OSM**) and Microsoft Footprint Data (**MS**).
- 
-.. code-block:: json
-
-    "brails_options":{
-	"scraper":"USA",
-	"default_building_height":20.0
-    }		
-
-    
-Defining the OpenFOAM Computation (Mesh, Boundary Conditions and Algorithms)
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-This part of the input file is used to define the mesh, boundary conditions and algorithms that will define the OpenFOAM simulation. A number of inputs are required that define the bounary of the mesh, the meshing and the algorithms used in the time stepping CFD simulations. The **computational_domain** part of the input file must contain the following fields: **boundary_mesh_cell_size** which defines mesh at boundary surfaces, **cells_between_levels**, **kinematic_viscosity** which defines and sections for **domain_extents**, **boundary_conditions**, **control_dict** whose contents will be discussed in following sections. 
-
-.. code-block:: json
-
-    "computational_domain": {		
-	"roi_surface_level":5.0,
-	"surrounding_surface_level":4.0,
-	"boundary_mesh_cell_size":5.0,
-	"kinematic_viscosity":1.5e-05,
-	"cells_between_levels":5,		
-        "domain_extents": { ... },
-	"boundary_conditions": {...},
-	"refinement_regions": { ...},
-        "control_dict":{ ...}
-    }
-
-Domain Extents
-''''''''''''''
-
-The computational domain consists of 8 boundary faces: **inlet**, **outlet**, **side1**, **side2**, **top**, **ground**, **ROI**, and **Surrounding**.
-
-.. _fig-advanced-cfd-4:
-
-.. figure:: figures/Picture4.png
-   :align: center
-   :width: 50%
-
-   Domain extents.
-
-The **inlet** face defines where the wind inflow enters the domain. Following the recommendations of COST 732 (Franke et al., 2007), the inlet must be located at least **five times the maximum building height, 5Hmax**  from the outermost building footprint. The inlet face must be oriented **perpendicular** to the wind direction.
-
-The side boundaries (side1 and side2) are oriented **parallel** to the wind direction. COST 732 recommends that these lateral boundaries be placed at least **5 Hmax** from the outer edge of the community.
-
-The **outlet boundary** is where the flow exits the domain and must be located at least **15 Hmax** downstream of the community.
-
-The **top boundary** of the domain must also be a distance of more than 5Hmax from the top of the building with maximum height. Since the horizontal extents of the domain are much larger than the vertical extent, the default value for the top boundary is **15Hmax** from the ground. The **ground**, and buildings in the **ROI** and **surrounding** are treated wall boundaries, where the flow cannot enter. A depiction of computational domain extents is presented in :numref:`fig-advanced-cfd-4`. 
-
-These extents are defined as multiplers in the computational_domain/domain_extents part of the input file, which for the online example is the following:
-
-.. code-block:: json
-
-    "computational_domain": {
-	"domain_extents": {
-	    "inlet_multiplier":7.5,
-	    "outlet_multiplier":20.0,
-	    "side_multiplier":10.0,
-	    "top_multiplier":20.0	
-	}
-	...
-    }
-
-
-Refinement Regions
-''''''''''''''''''
-
-In the previous section, the boundaries of the computational domain were defined. The next step is to describe how this domain is converted into a computational mesh.
-
-In OpenFOAM, the mesh resolution is not uniform throughout the domain. Instead, finer cells are used in regions where the flow is expected to change rapidly—such as near buildings, the ground surface, and areas of strong velocity gradients—while coarser cells are used farther away to reduce computational cost.
-
-To achieve this, the workflow applies mesh refinement parameters that control how the base mesh is subdivided in selected regions. These parameters allow the user to balance accuracy and efficiency by increasing resolution only where it is needed.
-
-.. _fig-advanced-cfd-5:
-
-.. figure:: figures/Picture5.png
-   :align: center
-   :width: 50%
-
-   Levels of mesh refinement.
-
-The following section describes the mesh refinement options and how they influence the final OpenFOAM mesh.
-
-The user provides input on the nominal computational cell size for blockMesh, number of cells between refinement levels, the mesh refinement regions, the level of mesh refinement for each region, and the levels of mesh refinement for the ROI and surrounding buildings. Level n mesh refinement would mean the cell size in that region would be . If the user doesn’t define the mesh refinement for the ROI buildings and the Surrounding buildings, the level of refinement for the surrounding would be the minimum level of refinement for the refinement boxes + 1, and the level of refinement for the ROI would be the level of refinement for the surrounding + 1. An example mesh refinement is shown in :numref:`fig-advanced-cfd-5`. The origin (0,0,0) of the computational domain is at the bottom right corner of the inlet plane. The domain extents are defined in terms of Hmax. For example, if the user enters a value of 10 for inlet distance multiplier, the inlet will be 10Hmax from the buildings. The user also has the option to name the OpenFOAM case folder (the default is “case”). The outputs generated from this step are saved in the case/system folder and case/constant/triSurface folder. The blockMeshDict and snappyHexMeshDict files are saved in the case/system folder, while the ROI.stl and Surrounding.stl files are saved in the case/constant/triSurface folder. 
-
-.. code-block:: json
-
-    "computational_domain": {
-	"boundary_mesh_cell_size":5.0,
-	"cells_between_levels":5,	
-	"refinement_regions":[
-	    {
-	     "name":"box1",
-	     "level":1,
-	     "x_min":0,
-	     "y_min":0,
-	     "z_min":0,
-	     "x_max":390,
-	     "y_max":345,
-	     "z_max":50
-	    },
-	    {"name":"box2",
-	     "level":2,
-	     "x_min":0,
-	     "y_min":0,
-	     "z_min":0,
-	     "x_max":300,
-	     "y_max":300,
-	     "z_max":30
-	    },
-	    {"name":"box3",
-	     "level":3,
-	     "x_min":50,
-	     "y_min":50,
-	     "z_min":0,
-	     "x_max":250,
-	     "y_max":250,
-	     "z_max":15
-	    }	    	    
-	],
-    }     
-
-Boundary Conditions
-'''''''''''''''''''
-
-Setting appropriate boundary conditions is a critical step in configuring a CFD simulation, as they define how the flow enters, exits, and interacts with the "walls" of the computational domain. The user defined boundary conditions will be broken into two: 1) **sides, ground, larger and roi regions** and the 2) **inlet**. The boundary conditions are set in the computational_domain/boundary_conditions section of the input file, an example of which is shown below for the **RANS** trubulence model.
-
-.. code-block:: json
-
-    "computational_domain": {
-	"boundary_conditions": {
-	    "side":"slip",
-	    "ground_style":"rough",
-	    "roi_style":"rough",
-	    "surround_style":"rough",
-	    "inlet":{
-	      "framework":"RANS",
-	      "Uref":10.0,
-	      "Href":10.0,
-	      "z0":0.1
-	    }	    
-	}
-    }		
-
-1. The **side** boundaries could be defined as either **slip** or **cyclic**. The slip condition mimics the symmetry boundary condition, i.e., there is no flow through the surface. The top boundary is very far away, and hence a slip condition is applied there. The outlet surface is in a zero-pressure condition. The ground, ROI, and surrounding surfaces are solid, walls in the OpenFOAM model; therefore, the velocity is zero at these surfaces. The standard wall functions, **smooth** or **rough** may be set for these surfaces.
-
-   
-2. The Inlet Boundary Condition.
-
-   This is the boundary that describes the incoming wind and it's turbulence. There are three ways to model turbulence, which given in increasing complexity, are: Reynolds averaging (RANS), large eddy simulations (LES), and direct numerical simulations (DNS). For atmospheric flow, using DNS is not feasible due to the very high Reynolds number and a large variation in the length scales. The **framework** option within the inlet configuration specifies whether the simulation uses RANS or LES. RANS accurately predicts the mean flow field while modeling turbulence through a closure model (Launder and Spalding, 1974). LES explicitly resolves the largest turbulent eddies and models the smaller, subgrid-scale (SGS) motions using a Smagorinsky-type model (Smagorinsky, 1963).
-   
-As was shown in code snippet above, the turbulence model is set in the inlet/framework option. if the user chooses the **RANS** model, the user provides additional **Uref**, **Href** and **z0** quantaties. The inflow velocity profile is automatically chosen to be logarithmic, given by the following equation:
-
-where  is the friction velocity,  is the von Karman constant, z is the vertical coordinate, and  is the roughness length.
-
-.. note::
-
-   The initial files with the variables (U, k, epsilon, p, and nut) are saved in the case/0 folder. The turbulence parameters are written in the “turbulenceProperties” file and saved in the case/constant folder. The user has the option to also prescribe the kinematic viscosity of air (default is 1.5e-05m2/s). This value is saved in the “transportProperties” file in the case/constant folder.
-
-
-If the user opts to choose the LES model, in addition to **Href**, **Uref** and **z0**, the user specifies a wind profile option for the inlet specified in the **inflow** variable. For the inflow option, the user has an option to to specify either a steady logarithmic velocity profile, **meanabl**, or generate a time-varying velocity profile using the digital filter method described by the Turbulent Inflow Tool (**TINF**). For the logarithmic profile, the user needs to provide the reference wind speed (Uref), the reference height (Zref), and the roughness length (zo).
-
-.. code-block:: json
-
-    "computational_domain": {
-	"inlet":{
-	    "framework":"les",
-	    "inflow":"meanabl",
-	    "Uref":10.0,
-	    "Href":10.0,
-	    "z0":0.1
-	}
-    }		
-
-In addition to these inputs, if the user chooses **TINF** they must provide a CSV file containing the following information: points in the vertical direction, mean wind speed at those points, the 6 Reynolds stress tensor entries, and the 9 length scales. All of these quantities must occupy a column in the CSV file. Even though the user chooses TINF, they need to provide reference wind speed, reference height, and the roughness length for the atmospheric boundary layer (ABL) wall functions used.
-
-.. code-block:: json
-
-    "computational_domain": {
-	"boundary_conditions": {
-	    "inlet":{
-		"framework":"les",
-		"inflow":"turbulent",
-		"path_TINF_file":"wind_profile.csv",
-		"Uref":10.0,
-		"Href":10.0,
-		"z0":0.1
-	    }
-	}
-    }		
-
-
-.. note::
-
-   1. An example screenshot of the CSV file is shown in :numref:`fig-advanced-cfd-6`.
-
-
-      .. _fig-advanced-cfd-6:
-
-      .. figure:: figures/Picture6.png
-           :align: center
-           :width: 50%
-
-	An example of csv file for TINF.
-    
-      
-   2. The TINF files are saved in the case/constant/boundaryData/inlet folder.
-
-Control Dict
-''''''''''''
-
-With mesh and boundary conditions set, the last thing to do is to specify parameters that control the time steps, duration, solver and outputs to be used in the CFD simulation, the OpenFOAM **control dict**, parameters. NOTE: **These parameters required are dependent on the turbulence model chosen in the previous section**.
-
-For **RANS** simulations the required inputs, as shown in the code snippet below, are: 1) the **end_time** of the simulation and the time step, **deltaT_sim**. The number of iterations then becomes end time divided by time step. (The time step size doesn’t matter as this is a steady-state simulation). The user also needs to specify the interval for writing the files, **deltaT_write**. The output files will be written after the number of iterations mentioned in the interval. The simulation stops either on convergence or if the simulation reaches the end time, whichever comes first.
-
-.. code-block:: json
-
-	"control_dict": {
-	    "end_time":10000.0,
-	    "deltaT_sim":1.0,
-	    "deltaT_write":1.0
-	}
-
-.. note::
-
-   The equations are solved using the “SIMPLE” (Semi-Implicit Method for Pressure Linked Equations) algorithm. These details are outputted in the “controlDict” file saved in the case/system folder. Additional files such as “surfaceFeaturesDict”, “fvSolution”, and “fvSchemes” are also saved in the case/system folder containing details of the building features, solution algorithms to linear system of equations, the convergence criteria, and the discretization schemes for various terms. Convergence is reached when all of the residuals are under .
-
-For a **LES**, there are different parameters needed, as shown in code snippett below. The user is required to provide the initial time step for the simulation, **initial_deltaT_sim**. The size of the time step is very important in LES as it is a transient simulation. It takes time for the flow to settle and become independent of the initial conditions; therefore, it is suggested that the user give more time than what is required.
-
-.. code-block:: json
-
-	"control_dict": {
-	    "end_time":100.0,
-	    "initial_deltaT_sim":0.05,
-	    "max_deltaT_sim":0.01,
-	    "adjust_time":"yes",
-	    "solver":"pisoFoam",
-	    "max_courant":1.0,
-	    "deltaT_write":1.0,
-	    "num_wind_profiles":0,
-	    "num_section_planes":0
-        }			
-
-
-For LES the user also needs to specify  solver, **solver**, with the value being either **pisoFoam** or **pimpleFoam**. “PISO” (Pressure-Implicit with Splitting of Operators) and “PIMPLE” (PISO + SIMPLE). Moreover, if the user selects “PIMPLE”, there is an option to automatically adjust the time step according to the maximum Courant number (also prescribed by the user). If the user chooses the “PISO” algorithm, the initial time step will remain constant throughout the simulation (even though there is an option to select the adjusted time step option).
-
-As opposed to RANS, in LES mode, the write interval is based on run-time and not the number of iterations. For example, if the user chooses 1 as the write interval for LES, the outputs will be saved at each second rather than each iteration. The user has the option to prescribe several profiles and planes for recording velocity or pressure, or both, at every iteration. The profile contains a line of probes (number is user-defined), with the start and end points of the line defined by the user. For the plane, the user needs to define the point in the plane and the normal vector to the plane. The point must not be on the boundary. 
-
-.. code-block:: json
-
-	"control_dict": {
-	    "end_time":100.0,
-	    "initial_deltaT_sim":0.05,
-	    "max_deltaT_sim":0.01,
-	    "adjust_time":"yes",
-	    "les_algorithm":"pisoFoam",
-	    "max_courant":1.0,
-	    "deltaT_write":1.0,
-            "num_wind_profiles":0,
-            "num_section_planes":0
-	}	
-
-
-Running in OpenFOAM
-^^^^^^^^^^^^^^^^^^^
-
-The user is required to have OpenFOAM v10 installed on their computer. Once the user has generated all the required files using the above workflow, they can run the simulation using the following procedure:
-
-1. Open the Linux terminal in which OpenFOAM v10 is installed and go to the case folder.
-2. Run the ``blockMesh`` command to generate the background mesh.
-3. Run the ``surfaceFeatures`` command to create the building features.
-4. Optionally run ``decomposePar`` to decompose the mesh.
-5. Run ``snappyHexMesh -overwrite`` command either in serial or parallel mode.
-6. If ``snappyHexMesh`` was run in parallel, run reconstructParMesh -constant command to reconstruct the mesh.
-7. Optionally run ``decomposePar -force``, to decompose the mesh and run the simulation in parallel.
-8. Run the ``simpleFoam`` or ``pimpleFoam``, or pisoFoam command (depending on the algorithm chosen by the user) either in serial or parallel mode.
-9. If the user ran the simulation in parallel, then run the ``reconstructPar`` command.
-
-
-Post-process in Paraview
-""""""""""""""""""""""""""
-
-The user is required to have Paraview 5.10, which usually comes with the OpenFOAM v10 installation. The user can open the Community.foam file in the case folder in ParaView and view the simulation results. The profile and plane data can be viewed in case/postProcessing/Profile_no. or Plane_no./time folder. The plane outputs are saved for each time instant in a .vtk file, which can be directly viewed in ParaView, whereas the profile outputs are saved in a text file, and a Python or MATLAB script can be written if the user needs to access the values and plot the time history.
-
-Manipulating the OpenFOAM files for miscellaneous simulations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The above workflow produces an OpenFOAM workflow specifically for the ABL flow in an urban environment. The same workflow can be used for other types of wind simulations, such as wind flow in a wind tunnel or wind flow over user-defined structures (any geometry). Here’s a breakdown of the parameters and files that can be modified to run any kind of wind simulation.
-
-Domain Extents and boundaries
-"""""""""""""""""""""""""""""
-
-The ``blockMeshDict`` file contains the details of the domain extents, the number of cells in each direction, and the boundary type. The users can change the vertices of the domain as per their choice, and also the number of cells in each direction in the blocks section of the file. The boundary patches can be modified in the boundary section. If the user wishes to define faces other than sides as cyclic, they can change the type to cyclic and add another argument as ``neighbourPatch`` with the patch that it’s cyclic with. If the user wishes to make another patch as a wall other than ground, they can just change the type from patch to wall. Make sure to also change the boundary conditions in the ``case/0/field`` variables files. Additionally, users can add more blocks and also define different mesh grading in all directions.
-
-User-defined obstacles
-""""""""""""""""""""""
-
-If the user wants to define the geometry of the obstacles, they need to provide the STL file/s and move them to the ``case/constant/triSurface`` folder. The user needs to modify the surfaceFeaturesDict and the ``snappyHexMeshDict`` files. The user needs to remove the ROI.stl and Surrounding.stl files and put in the name of the user-defined STL file and the user-defined region name. The user can also modify the ``snappyHexMeshDict`` file to change the extent of refinement regions and add more regions if required. Additionally, the level of refinement can also be changed. The user is required to also modify the boundary conditions in the field variables in the ``case/0`` folder. The region of obstacles needs to be added in the boundaryField section.
-
-
-User-defined initialization and inflow
-""""""""""""""""""""""""""""""""""""""
-The workflow provides options between a logarithmic wind profile and a TINF wind profile. However, if the user requires a different wind profile, they can modify the case/0/U, k, epsilon files for RANS and the case/0/U file for LES. In the boundaryField section, at the inlet, the user can input the profile of choice. If OpenFOAM v10 has standard profiles available, the user can visit the website and apply the condition as shown on the website. Alternatively, the user can assign the value of a variable at each face of the inlet boundary. This can be done in the following way:
-
-1. In the case folder, after creating the mesh (blockMesh and snappyHexMesh), run the postProcess -func writeCellCentres command to get the coordinates of each face at the boundary and each cell in the domain. The coordinates are saved in the files “C”, “Cx”, “Cy”, and “Cz” files inside the case/0 folder. 
-
-2. Extract the y and z coordinates for the inlet face and then calculate the variables at each of those coordinates using a Python script or a MATLAB script. 
-
-3. The following format can then be used to input into the inlet patch of the boundaryField section of a field variable:
-
-.. code-block:: boundaryField section 
-
-   type     fixedValue;
-
-   value    nonuniform  List<scalar or vector>
-
-   Number of inlet faces
-
-   (
-       Values (if vector then (value1 value2 value3)
-   );
-
-
-A similar procedure can be used to input a user-defined initial profile inside the domain. The change would be made in the internalField section. Instead of a uniform, a nonuniform value would have to be described. All three coordinates would be required to calculate the profile values.
-
-Mapping fields
-""""""""""""""""
-It is common to run a coarser or a RANS simulation before running an LES simulation to initialize the variables for faster convergence. A “mapFieldsDict” file is required to do that. An example of such a file is shown in :numref:`fig-advanced-cfd-3`. The user can modify the dict according to the requirements. The user can then map fields from one folder to another using the following command: 
-
-``mapFields path_to_source_folder -sourceTime -latestTime``. 
-
-Type ``mapFields -help`` for more options. 
-
-.. _fig-advanced-cfd-7:
-
-.. figure:: figures/Picture7.png
-   :align: center
-   :width: 50%
-
-   An example of the mapFieldsDict file.
-
-Turbulence Modeling and wall functions
-""""""""""""""""""""""""""""""""""""""""
-
-If the user wishes to use different models, such as DES (Detached Eddy Simulations), RANS , or LES dynamic Smagorinsky, then the user would need to modify the turbulenceProperties file and add or remove field variables depending on the needs of the model. The usage for other turbulence models can be found in the OpenFOAM documentation.
-
-The workflow described above uses standard ABL wall functions. However, different wall functions can be used if the user needs. The nut, k, epsilon files must be modified to implement the wall function. The modification needs to be made in the wall boundaries in the boundaryField section.
-
+``pip install geopandas shapely pyproj trimesh rtree mapbox-earcut``
 
 
 Example
@@ -733,6 +317,70 @@ Visualization of the CFD output
    :width: 50%
 
    Velocity and pressure field at z=3m.
+
+Manipulating the OpenFOAM files for miscellaneous simulations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The above workflow produces an OpenFOAM workflow specifically for the ABL flow in an urban environment. The same workflow can be used for other types of wind simulations, such as wind flow in a wind tunnel or wind flow over user-defined structures (any geometry). Here’s a breakdown of the parameters and files that can be modified to run any kind of wind simulation.
+
+Domain Extents and boundaries
+"""""""""""""""""""""""""""""
+
+The ``blockMeshDict`` file contains the details of the domain extents, the number of cells in each direction, and the boundary type. The users can change the vertices of the domain as per their choice, and also the number of cells in each direction in the blocks section of the file. The boundary patches can be modified in the boundary section. If the user wishes to define faces other than sides as cyclic, they can change the type to cyclic and add another argument as ``neighbourPatch`` with the patch that it’s cyclic with. If the user wishes to make another patch as a wall other than ground, they can just change the type from patch to wall. Make sure to also change the boundary conditions in the ``case/0/field`` variables files. Additionally, users can add more blocks and also define different mesh grading in all directions.
+
+User-defined obstacles
+""""""""""""""""""""""
+
+If the user wants to define the geometry of the obstacles, they need to provide the STL file/s and move them to the ``case/constant/triSurface`` folder. The user needs to modify the surfaceFeaturesDict and the ``snappyHexMeshDict`` files. The user needs to remove the ROI.stl and Surrounding.stl files and put in the name of the user-defined STL file and the user-defined region name. The user can also modify the ``snappyHexMeshDict`` file to change the extent of refinement regions and add more regions if required. Additionally, the level of refinement can also be changed. The user is required to also modify the boundary conditions in the field variables in the ``case/0`` folder. The region of obstacles needs to be added in the boundaryField section.
+
+
+User-defined initialization and inflow
+""""""""""""""""""""""""""""""""""""""
+The workflow provides options between a logarithmic wind profile and a TINF wind profile. However, if the user requires a different wind profile, they can modify the case/0/U, k, epsilon files for RANS and the case/0/U file for LES. In the boundaryField section, at the inlet, the user can input the profile of choice. If OpenFOAM v10 has standard profiles available, the user can visit the website and apply the condition as shown on the website. Alternatively, the user can assign the value of a variable at each face of the inlet boundary. This can be done in the following way:
+
+1. In the case folder, after creating the mesh (blockMesh and snappyHexMesh), run the postProcess -func writeCellCentres command to get the coordinates of each face at the boundary and each cell in the domain. The coordinates are saved in the files “C”, “Cx”, “Cy”, and “Cz” files inside the case/0 folder. 
+
+2. Extract the y and z coordinates for the inlet face and then calculate the variables at each of those coordinates using a Python script or a MATLAB script. 
+
+3. The following format can then be used to input into the inlet patch of the boundaryField section of a field variable:
+
+.. code-block:: boundaryField section 
+
+   type     fixedValue;
+
+   value    nonuniform  List<scalar or vector>
+
+   Number of inlet faces
+
+   (
+       Values (if vector then (value1 value2 value3)
+   );
+
+
+A similar procedure can be used to input a user-defined initial profile inside the domain. The change would be made in the internalField section. Instead of a uniform, a nonuniform value would have to be described. All three coordinates would be required to calculate the profile values.
+
+Mapping fields
+""""""""""""""""
+It is common to run a coarser or a RANS simulation before running an LES simulation to initialize the variables for faster convergence. A “mapFieldsDict” file is required to do that. An example of such a file is shown in :numref:`fig-advanced-cfd-3`. The user can modify the dict according to the requirements. The user can then map fields from one folder to another using the following command: 
+
+``mapFields path_to_source_folder -sourceTime -latestTime``. 
+
+Type ``mapFields -help`` for more options. 
+
+.. _fig-advanced-cfd-7:
+
+.. figure:: figures/Picture7.png
+   :align: center
+   :width: 50%
+
+   An example of the mapFieldsDict file.
+
+Turbulence Modeling and wall functions
+""""""""""""""""""""""""""""""""""""""""
+
+If the user wishes to use different models, such as DES (Detached Eddy Simulations), RANS , or LES dynamic Smagorinsky, then the user would need to modify the turbulenceProperties file and add or remove field variables depending on the needs of the model. The usage for other turbulence models can be found in the OpenFOAM documentation.
+
+The workflow described above uses standard ABL wall functions. However, different wall functions can be used if the user needs. The nut, k, epsilon files must be modified to implement the wall function. The modification needs to be made in the wall boundaries in the boundaryField section.
 
 
 .. [Franke2007] Franke, J., Hellsten, A., Schlünzen, K.H. and Carissimo, B., 2007. COST Action 732: Best practice guideline for the CFD simulation of flows in the urban environment.
