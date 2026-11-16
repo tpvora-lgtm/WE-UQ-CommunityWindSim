@@ -129,11 +129,11 @@ Depending the solver chosen!
 
 2. In Parallel:
 
-``blockMesh
+``blockMesh``
 
-surfaceFeatures
+``surfaceFeatures``
 
-decomposePar``
+``decomposePar``
 
 ``mpirun -np {number of processors chosen} snappyHexMesh -overwrite -parallel > log.snappy``
 
