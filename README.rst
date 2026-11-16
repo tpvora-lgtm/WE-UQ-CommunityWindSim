@@ -87,11 +87,15 @@ d. Control Dictionary - In this widget, solver and time parameters are required.
 
 Running the Python Script on its own
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The Python script in the src/CommunityWindSim can alternatively run without the WE-UQ GUI. An example JSON file and TINF CSV file are provided in the directory to illustrate the inputs to the script. Before running the script, some dictionaries must be installed using the following commands:
+The Python script in the src/CommunityWindSim can alternatively run without the WE-UQ GUI. An example input JSON file and TINF CSV file are provided in the directory to illustrate the inputs to the script. Before running the script, some dictionaries must be installed using the following commands:
 
 ``pip install git+https://github.com/NHERI-SimCenter/BrailsPlusPlus``
 
 ``pip install geopandas shapely pyproj trimesh rtree mapbox-earcut``
+
+The script can then run using the following command:
+
+``python community_wind_simulation.py input.json``
 
 
 Example
