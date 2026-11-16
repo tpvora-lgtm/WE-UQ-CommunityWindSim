@@ -39,7 +39,31 @@ The desktop application of WE-UQ is available `here <https://www.designsafe-ci.o
    :align: center
    :width: 75%
 
-3. CFD Parameters
+3. CFD Parameters - CFD parameters are further divided into 
+
+.. _fig-f4:
+
+.. figure:: figures/CD1.png
+   :align: center
+   :width: 75%
+
+.. _fig-f5:
+
+.. figure:: figures/CD2.png
+   :align: center
+   :width: 75%
+
+.. _fig-f6:
+
+.. figure:: figures/CD3.png
+   :align: center
+   :width: 75%
+
+.. _fig-f7:
+
+.. figure:: figures/CD4.png
+   :align: center
+   :width: 75%
 
    The `Python script to run is available on-line <https://github.com/tpvora-lgtm/WE-UQ-CommunityWindSim/tree/main/src/CommunityWindSim>`_ . To run it you need to ensure that the following python modules have been installed: brails, geopandas shapely pyproj trimesh rtree mapbox-earcut. These are installed by issuing the following terminal command:
 
