@@ -167,11 +167,17 @@ Target region for the simulation
 """""""""""""""""""""""""""""""""
 The total region is selected as the circle of radius 200 m with the center coordinate (34.187958, -118.141656) which represents an area in Altadena. The region of interest is the bounding box represented by the (`min_lat`, `min_lon`) and (`max_lat`, `max_lon`) coordinates. The wind direction is chosen to be South-West (225°).
 
+.. _fig-ex2:
+
+.. figure:: figures/ActRegion.png
+   :align: center
+   :width: 75%
+
 Computational Domain and Mesh
 """"""""""""""""""""
 The domain extents are determined according to the COST 732 Best Practice Guidelines (Franke et al. 2007). Hmax is the maximum height of the set of buildings. 
 
-.. _fig-ex2:
+.. _fig-ex3:
 
 .. figure:: figures/Extent.png
    :align: center
@@ -179,7 +185,7 @@ The domain extents are determined according to the COST 732 Best Practice Guidel
 
 Three mesh refinement regions are defined as shown in the figure. The background mesh size of 14 m was chosen to keep the number of cells small for this example. The Surrounding buildings are resolved with a refinement level of 4 and the ROI buildings are resolved with a refinement level of 5.
 
-.. _fig-ex3:
+.. _fig-ex4:
 
 .. figure:: figures/Mesh.png
    :align: center
