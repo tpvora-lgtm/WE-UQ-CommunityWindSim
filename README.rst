@@ -177,6 +177,13 @@ The domain extents are determined according to the COST 732 Best Practice Guidel
    :align: center
    :width: 75%
 
+Three mesh refinement regions are defined as shown in the figure. The background mesh size of 14 m was chosen to keep the number of cells small for this example. The Surrounding buildings are resolved with a refinement level of 4 and the ROI buildings are resolved with a refinement level of 5.
+
+.. _fig-ex3:
+
+.. figure:: figures/Mesh.png
+   :align: center
+   :width: 75%
 
 
 Visualization of the CFD output
