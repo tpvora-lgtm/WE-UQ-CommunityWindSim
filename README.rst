@@ -167,6 +167,11 @@ Target region for the simulation
 """""""""""""""""""""""""""""""""
 The total region is selected as the circle of radius 200 m with the center coordinate (34.187958, -118.141656) which represents an area in Altadena. The region of interest is the bounding box represented by the (`min_lat`, `min_lon`) and (`max_lat`, `max_lon`) coordinates. The wind direction is chosen to be South-West (225°).
 
+Computational Domain
+""""""""""""""""""""
+The domain extents are determined according to the COST 732 Best Practice Guidelines (Franke et al. 2007). Hmax is the maximum height of the set of buildings.
+
+
 Visualization of the CFD output
 """""""""""""""""""""""""""""""
 
