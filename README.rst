@@ -191,6 +191,20 @@ Three mesh refinement regions are defined as shown in the figure. The background
    :align: center
    :width: 75%
 
+Boundary Conditions
+"""""""""""""""""""
+A turbulent inflow is applied at the inlet of the domain, side boundaries are assumed as slip, ground boundaries are assumed as smooth and buildings are assumed as rough walls.
+
+Simulation Parameters
+"""""""""""""""""""""
+A PIMPLE based algorithm is used to solve the Navier-Stokes equations using a URANS formulation with a k-ω SST model. The timestep is adjusted according to the maximum Courant number of 2. A profile line and a section plane is chosen to store data at every time instant and shown below.
+
+.. _fig-ex5:
+
+.. figure:: figures/PrPl.png
+   :align: center
+   :width: 75%
+
 
 Visualization of the CFD output
 """""""""""""""""""""""""""""""
