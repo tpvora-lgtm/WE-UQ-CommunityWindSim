@@ -227,7 +227,19 @@ Mean profiles along the line described above are presented here:
 
 .. _fig-ex8:
 
-.. figure:: figures/Res3.eps
+.. figure:: figures/Res3.png
+   :align: center
+   :width: 75%
+
+.. _fig-ex9:
+
+.. figure:: figures/Res4.png
+   :align: center
+   :width: 75%
+
+.. _fig-ex10:
+
+.. figure:: figures/Res5.png
    :align: center
    :width: 75%
 
