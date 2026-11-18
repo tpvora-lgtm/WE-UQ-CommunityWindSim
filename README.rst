@@ -205,46 +205,31 @@ A PIMPLE based algorithm is used to solve the Navier-Stokes equations using a UR
    :align: center
    :width: 75%
 
+Results
+"""""""
+The simulation results inside the domain on a plane 2m above the ground for various time instants are shown below:
 
-Visualization of the CFD output
-"""""""""""""""""""""""""""""""
+.. _fig-ex6:
 
-**Mesh**
-
-:numref:`fig-advanced-cfd-4` shows the perspective view of the computational domain used in the example and :numref:`fig-advanced-cfd-5` shows the mesh refinement levels. It can be seen that the mesh is finer near the buildings and even finer near the buildings in the ROI. A cross section of the mesh levels along the flow direction can be viewed in :numref:`fig-advanced-cfd-21`.
-
-.. _fig-advanced-cfd-21:
-
-.. figure:: figures/Picture21.png
+.. figure:: figures/Res1.png
    :align: center
-   :width: 50%
+   :width: 75%
 
-   Typical cross section along the flow direction.
+The simulation results on the defined section plane for two time instants is shown here:
 
-**Wind profile**
+.. _fig-ex7:
 
-:numref:`fig-advanced-cfd-22` shows the mean velocity profile at the inlet at the end of the simulation. The OpenFOAM wind profile is almost the same as the Target wind input.
-
-.. _fig-advanced-cfd-22:
-
-.. figure:: figures/Picture22.png
+.. figure:: figures/Res2.png
    :align: center
-   :width: 50%
+   :width: 75%
 
-   Typical cross section along the flow direction.
+Mean profiles along the line described above are presented here:
 
+.. _fig-ex8:
 
-**Pressure and velocity field slices**
-
-:numref:`fig-advanced-cfd-23` shows the pressure and velocity fields at a height of z = 3m at the end of the simulation.  We can see that the boundaries are not much affected by the buildings which shows that the boundaries are far enough to not cause any significant changes to the wind flow in the vicinity of the region.
-
-.. _fig-advanced-cfd-23:
-
-.. figure:: figures/Picture23.png
+.. figure:: figures/Res3.eps
    :align: center
-   :width: 50%
-
-   Velocity and pressure field at z=3m.
+   :width: 75%
 
 Manipulating the OpenFOAM files for miscellaneous simulations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
