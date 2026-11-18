@@ -215,7 +215,7 @@ The simulation results inside the domain on a plane 2m above the ground for vari
    :align: center
    :width: 75%
 
-The simulation results on the defined section plane for two time instants is shown here:
+The simulation result animation on the defined section plane is shown here:
 
 .. _fig-ex7:
 
