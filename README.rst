@@ -233,7 +233,7 @@ Mean profiles along the line described above are presented here:
 
 .. _fig-ex9:
 
-.. figure:: figures/Res4.png
+.. figure:: figures/AnimPlane.gif
    :align: center
    :width: 75%
 
