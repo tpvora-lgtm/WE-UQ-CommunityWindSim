@@ -219,7 +219,7 @@ The simulation results on the defined section plane for two time instants is sho
 
 .. _fig-ex7:
 
-.. figure:: figures/Res2.png
+.. figure:: figures/AnimPlane.gif
    :align: center
    :width: 75%
 
@@ -233,7 +233,7 @@ Mean profiles along the line described above are presented here:
 
 .. _fig-ex9:
 
-.. figure:: figures/AnimPlane.gif
+.. figure:: figures/Res4.png
    :align: center
    :width: 75%
 
