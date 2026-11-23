@@ -1159,7 +1159,7 @@ TP_LESC  = textwrap.dedent("""\
     
     purgeWrite 0;
     
-    writeFormat binary;
+    writeFormat ascii;
 
     writePrecision 8;
     
