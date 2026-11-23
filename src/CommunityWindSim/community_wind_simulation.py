@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 import argparse
 from pathlib import Path
 import sys, math
@@ -66,7 +66,7 @@ def ask_side() -> str:
 def ask_angle() -> float:
     while True:
         try:
-            deg = float(input("Wind-direction angle θ (deg, Counter-Clockwise from E): ").strip())
+            deg = float(input("Wind-direction angle theta (deg, Counter-Clockwise from E): ").strip())
             return deg
         except ValueError:
             print("   enter a numeric value")
@@ -90,7 +90,7 @@ def ask_box(idx: int) -> tuple | None:
     try:
         vals = tuple(float(v) for v in coords)
     except ValueError:
-        print("  ✗  invalid number — try again")
+        print("  x  invalid number - try again")
         return ask_box(idx)
 
     default_name = f"box{idx}"
@@ -156,14 +156,27 @@ def to_metric(gdf: gpd.GeoDataFrame, epsg:int):
 # ───────────────────────── Add the nearest height if data missing ─────────────────────────
 
 def nearest_fill(gdf: gpd.GeoDataFrame, fld:str, dflt:float):
+    n_tot = len(gdf)
+    n_na  = int(gdf[fld].isna().sum())
     kn = gdf[~gdf[fld].isna()].copy()
+    if n_na == 0:
+        return gdf
     if kn.empty:
+        print(f"WARNING: community_wind_simulation::nearest_fill: all {n_tot} buildings have missing/NA or <= 0 '{fld}'. "
+              f"Assigning the default height of {dflt} to every building.")
         gdf[fld] = dflt
         return gdf
+    print(f"WARNING: community_wind_simulation::nearest_fill: {n_na} of {n_tot} buildings have missing/NA or <= 0 '{fld}'. "
+          f"Each was assigned the '{fld}' of its nearest building with a known value "
+          f"({n_tot - n_na} known; values range {kn[fld].min():g} to {kn[fld].max():g}).")
     sidx = kn.sindex
     for idx, g in gdf[gdf[fld].isna()].geometry.items():
         near = sidx.nearest(g, return_all=False)
-        pos  = int(near[0]) if isinstance(near, np.ndarray) else int(next(near))
+        if isinstance(near, np.ndarray):
+            # geopandas>=0.12 / shapely 2: shape (2, k) -> row 1 = tree (kn) indices
+            pos = int(near[1][0]) if near.ndim == 2 else int(near.ravel()[0])
+        else:
+            pos = int(next(iter(near)))   # legacy rtree generator
         gdf.at[idx, fld] = kn.iloc[pos][fld]
     return gdf
 
@@ -390,7 +403,7 @@ REFINE_BOX = "        {name}\n        {{\n            mode inside;\n" \
 def cli() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Create turbulenceProperties and initial fields "
-                    "(RANS k-ε or LES with mean ABL or turbulent DFM inlet).")
+                    "(RANS k-epsilon or LES with mean ABL or turbulent DFM inlet).")
     
     return p.parse_args()
 
@@ -1916,7 +1929,7 @@ def load_input(json_path=None):
             
     except json.JSONDecodeError as e:
         print(f" JSON syntax error in {path}: {e} .. use a JSON validator")
-        sys.exit("Invalid JSON — stopping.")
+        sys.exit("Invalid JSON - stopping.")
 
     if not isinstance(inputs, dict):
         raise ValueError("Input JSON file must contain a JSON object!")
@@ -2079,11 +2092,23 @@ def main(config: Dict[str, Any]) -> None:
 
     # --- split remaining --------------------------------------------------
     rest = gdf_full.loc[~gdf_full.geometry.apply(lambda g: g.wkb in {w.wkb for w in gdf_roi.geometry})].copy()
+    if rest.empty:
+        sys.exit("ERROR: community_wind_simulation: no surrounding buildings found outside the ROI "
+                 f"({len(gdf_full)} buildings in total, {len(gdf_roi)} in the ROI). "
+                 "Enlarge the surrounding region or reduce the ROI - stopping.")
 
     # --- heights ----------------------------------------------------------
     for gdf in (gdf_roi, rest):
         if fld not in gdf.columns: gdf[fld]=np.nan
         gdf[fld]=pd.to_numeric(gdf[fld],errors="coerce")
+    if dflt <= 0:
+        sys.exit(f"ERROR: community_wind_simulation: default_building_height must be > 0, got {dflt} - stopping.")
+    for name, gdf in (("ROI", gdf_roi), ("Surrounding", rest)):
+        bad = gdf[fld] <= 0
+        if bad.any():
+            print(f"WARNING: community_wind_simulation: {int(bad.sum())} {name} buildings have '{fld}' <= 0; "
+                  f"treating these as missing.")
+            gdf.loc[bad, fld] = np.nan
     gdf_roi = nearest_fill(gdf_roi,fld,dflt)
     rest    = nearest_fill(rest   ,fld,dflt)
     hmax = max(gdf_roi[fld].max(), rest[fld].max())
@@ -2125,17 +2150,18 @@ def main(config: Dict[str, Any]) -> None:
         gdf.set_geometry(gdf.geometry.translate(xoff=-xshift,yoff=-yshift), inplace=True)
 
     # --- STL write --------------------------------------------------------
-    def mesh(gdf):
+    def mesh(gdf, name):
         parts=[]
         for pg,h in zip(gdf.geometry,gdf[fld]):
             if isinstance(pg,geom.MultiPolygon): parts.extend(extrude(p,h) for p in pg.geoms)
             else: parts.append(extrude(pg,h))
-
-            m=trimesh.util.concatenate(parts)
+        if not parts:
+            sys.exit(f"ERROR: community_wind_simulation: no {name} building geometry to write to STL - stopping.")
+        m=trimesh.util.concatenate(parts)
         # m.remove_duplicate_faces(); m.remove_degenerate_faces(); m.fill_holes()
         return m
-    write_stl_ascii(mesh(gdf_roi), roi_stl,  "ROI")
-    write_stl_ascii(mesh(rest),    rest_stl, "Surrounding")
+    write_stl_ascii(mesh(gdf_roi, "ROI"), roi_stl,  "ROI")
+    write_stl_ascii(mesh(rest, "Surrounding"),    rest_stl, "Surrounding")
     print(" STL files created.")
     
     # --- compute bounds ---------------------------------------------------
@@ -2171,7 +2197,7 @@ def main(config: Dict[str, Any]) -> None:
               case/"system"/"blockMeshDict")
     
     print(" blockMeshDict written.")
-    print(f"Applied rotation −{angle_deg}° so wind aligns with +x.")
+    print(f"Applied rotation -{angle_deg} deg so wind aligns with +x.")
     print(f"Extents: ({x0},{y0},{z0}) to ({x1},{y1},{z1})")
     # ───────────────────────── Write snappyHexMesh ─────────────────────────
 
@@ -2318,7 +2344,7 @@ def main(config: Dict[str, Any]) -> None:
             z0=float(inlet['z0'])
             if fw == "LES" or fw =="URANS" or fw == "les" or fw == "urans":
                 inflow=inlet['inflow']
-                les_algorithm=inlet['solver']
+                
                 
         except KeyError as e:
             raise ValueError(f"Missing key {e} in boundary_conditions: {region}") from e
@@ -2549,6 +2575,7 @@ def main(config: Dict[str, Any]) -> None:
             try: 
                 end_T=float(control_dict['end_time'])
                 deltaT_sim=float(control_dict['initial_deltaT_sim'])
+                les_algorithm=control_dict['solver']
                 maxDeltaT = float(control_dict['max_deltaT_sim']) 
                 adjust_time=control_dict['adjust_time']
                 adjust_time = adjust_time.strip().lower()
@@ -2911,11 +2938,17 @@ def main(config: Dict[str, Any]) -> None:
 
     Path(case/"Community.foam").touch()
 
+    print(f"\nDone. OpenFOAM case written to: {Path(case).resolve()}")
+
 if __name__ == "__main__":
+
+    # Windows consoles/pipes may default to cp1252; never crash on non-ASCII output
+    for _stream in (sys.stdout, sys.stderr):
+        try:
+            _stream.reconfigure(errors="replace")
+        except (AttributeError, ValueError):
+            pass
 
     json_inputfile_path = sys.argv[1] if len(sys.argv) > 1 else None
     input_config = load_input(json_inputfile_path)
     main(input_config)
-    
-
-    
